@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treinamento de Inteligência Artificial</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #08080f; color: #fff; min-height: 100vh; }
+
+  /* NAV MODULES */
+  .mod-nav { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 40px; background: rgba(255,255,255,0.03); border-bottom: 1px solid #1a1a2e; position: sticky; top: 0; z-index: 100; }
+  .mod-btn { font-size: 12px; color: rgba(255,255,255,0.4); background: none; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px 14px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .mod-btn:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
+  .mod-btn.active { color: #7F77DD; border-color: #534AB7; background: rgba(83,74,183,0.12); }
+
+  /* SLIDE NAV */
+  .slide-nav { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 40px; background: rgba(255,255,255,0.015); border-bottom: 1px solid #111122; }
+  .slide-btn { font-size: 11px; color: rgba(255,255,255,0.3); background: none; border: none; cursor: pointer; padding: 4px 10px; border-radius: 4px; transition: all 0.2s; }
+  .slide-btn:hover { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); }
+  .slide-btn.active { color: #AFA9EC; background: rgba(83,74,183,0.1); }
+
+  /* SLIDE */
+  .slide { min-height: calc(100vh - 120px); display: flex; flex-direction: column; justify-content: center; padding: 60px 64px; position: relative; overflow: hidden; }
+  .slide::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 75% 15%, rgba(83,74,183,0.15) 0%, transparent 55%); pointer-events: none; }
+  .slide::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(83,74,183,0.4), transparent); }
+
+  /* TYPOGRAPHY */
+  .tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #7F77DD; border: 1px solid rgba(83,74,183,0.5); border-radius: 20px; padding: 5px 14px; margin-bottom: 24px; }
+  .tag.green { color: #5DCAA5; border-color: rgba(29,158,117,0.5); }
+  .tag.coral { color: #F0997B; border-color: rgba(216,90,48,0.5); }
+  .tag.amber { color: #EF9F27; border-color: rgba(186,117,23,0.5); }
+  h1 { font-size: 54px; font-weight: 500; line-height: 1.12; color: #fff; }
+  h2 { font-size: 38px; font-weight: 500; line-height: 1.2; color: #fff; }
+  h3 { font-size: 17px; font-weight: 500; color: #fff; margin-bottom: 10px; }
+  .sub { font-size: 18px; color: rgba(255,255,255,0.5); line-height: 1.65; margin-top: 16px; max-width: 580px; }
+  .accent { color: #7F77DD; }
+  .accent-green { color: #5DCAA5; }
+  .accent-coral { color: #F0997B; }
+  .accent-amber { color: #EF9F27; }
+  .line { width: 44px; height: 2px; background: linear-gradient(90deg, #534AB7, transparent); margin-bottom: 28px; }
+  .body { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.75; }
+  .slide-num { position: absolute; bottom: 28px; right: 48px; font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
+
+  /* GRID */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 20px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; }
+  .grid2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  /* CARDS */
+  .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; }
+  .card-blue { border-top: 2px solid #534AB7; }
+  .card-green { border-top: 2px solid #1D9E75; }
+  .card-coral { border-top: 2px solid #993C1D; }
+  .card-amber { border-top: 2px solid #854F0B; }
+  .card-left-blue { border-left: 3px solid #534AB7; }
+  .card-left-green { border-left: 3px solid #1D9E75; }
+  .card-left-coral { border-left: 3px solid #D85A30; }
+  .card-left-amber { border-left: 3px solid #BA7517; }
+
+  /* TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 0; margin-top: 28px; }
+  .tl-item { display: flex; gap: 20px; align-items: flex-start; padding-bottom: 28px; position: relative; }
+  .tl-item:not(:last-child)::after { content: ''; position: absolute; left: 17px; top: 36px; bottom: 0; width: 1px; background: rgba(83,74,183,0.25); }
+  .tl-dot { width: 36px; height: 36px; border-radius: 50%; background: rgba(83,74,183,0.15); border: 1px solid rgba(83,74,183,0.4); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #7F77DD; flex-shrink: 0; }
+  .tl-dot.active { background: #534AB7; color: #fff; border-color: #534AB7; }
+  .tl-year { font-size: 11px; color: #534AB7; font-weight: 600; letter-spacing: 1px; margin-bottom: 3px; text-transform: uppercase; }
+  .tl-title { font-size: 15px; font-weight: 500; color: #fff; margin-bottom: 4px; }
+  .tl-desc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+
+  /* PILLS */
+  .pill-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .pill { background: rgba(83,74,183,0.12); border: 1px solid rgba(83,74,183,0.35); border-radius: 20px; padding: 6px 16px; font-size: 13px; color: #AFA9EC; }
+
+  /* VS */
+  .vs-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 28px; }
+  .vs-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
+  .divider { width: 100%; height: 1px; background: rgba(255,255,255,0.07); margin: 18px 0; }
+  .example { background: rgba(255,255,255,0.04); border-radius: 7px; padding: 10px 14px; font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 8px; }
+  .example strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+  /* BIG NUM */
+  .big-num { font-size: 52px; font-weight: 500; line-height: 1; }
+  .metric { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 20px; }
+  .metric-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+
+  /* TOOL CARD */
+  .tool-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; }
+  .tool-name { font-size: 16px; font-weight: 500; color: #fff; margin-bottom: 4px; }
+  .tool-maker { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .tool-badge { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 10px; font-weight: 500; margin-bottom: 12px; }
+  .badge-blue { background: rgba(83,74,183,0.2); color: #AFA9EC; }
+  .badge-green { background: rgba(29,158,117,0.2); color: #5DCAA5; }
+  .badge-amber { background: rgba(186,117,23,0.2); color: #EF9F27; }
+  .badge-coral { background: rgba(216,90,48,0.2); color: #F0997B; }
+
+  /* PROMPT */
+  .prompt-block { background: rgba(83,74,183,0.08); border: 1px solid rgba(83,74,183,0.25); border-radius: 10px; padding: 20px 24px; margin-top: 16px; }
+  .prompt-bad { background: rgba(150,150,150,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px 20px; }
+  .prompt-good { background: rgba(29,158,117,0.08); border: 1px solid rgba(29,158,117,0.25); border-radius: 10px; padding: 16px 20px; }
+  .prompt-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .prompt-text { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.65; font-style: italic; }
+
+  /* PILLAR */
+  .pillar { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 22px; text-align: center; }
+  .pillar-icon { font-size: 28px; margin-bottom: 12px; }
+  .pillar-num { font-size: 32px; font-weight: 500; color: #534AB7; margin-bottom: 8px; }
+
+  /* ALERT */
+  .alert { border-radius: 10px; padding: 18px 22px; margin-top: 16px; font-size: 14px; line-height: 1.65; }
+  .alert-danger { background: rgba(162,45,45,0.1); border: 1px solid rgba(162,45,45,0.3); color: rgba(255,150,150,0.85); }
+  .alert-warn { background: rgba(133,79,11,0.12); border: 1px solid rgba(133,79,11,0.35); color: rgba(240,200,100,0.85); }
+  .alert-info { background: rgba(83,74,183,0.1); border: 1px solid rgba(83,74,183,0.3); color: #AFA9EC; }
+  .alert-success { background: rgba(15,110,86,0.1); border: 1px solid rgba(15,110,86,0.3); color: #5DCAA5; }
+
+  /* FUTURE */
+  .future-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 28px; position: relative; overflow: hidden; }
+  .future-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .future-card.fc1::before { background: linear-gradient(90deg, #534AB7, #7F77DD); }
+  .future-card.fc2::before { background: linear-gradient(90deg, #1D9E75, #5DCAA5); }
+  .future-card.fc3::before { background: linear-gradient(90deg, #854F0B, #EF9F27); }
+  .future-num { font-size: 48px; font-weight: 500; opacity: 0.08; position: absolute; top: 16px; right: 20px; line-height: 1; }
+
+  /* STEP ROW */
+  .step-row { display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .step-row:last-child { border-bottom: none; }
+  .step-dot { width: 28px; height: 28px; border-radius: 50%; background: rgba(83,74,183,0.2); border: 1px solid #534AB7; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #7F77DD; flex-shrink: 0; margin-top: 2px; }
+
+  /* QUOTE */
+  .quote { border-left: 3px solid #534AB7; padding: 20px 24px; margin: 24px 0; }
+  .quote-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.85); line-height: 1.5; font-style: italic; }
+  .quote-author { font-size: 13px; color: rgba(255,255,255,0.35); margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<nav class="mod-nav" id="modNav"></nav>
+<div class="slide-nav" id="slideNav"></div>
+<div id="slideArea"></div>
+
+<script>
+const modules = [
+  {
+    label: "01 — Introdução",
+    tag: "purple",
+    slides: [
+      {
+        name: "Abertura",
+        render: () => `
+          <div class="tag">Treinamento Completo</div>
+          <div class="grid2">
+            <div>
+              <div class="line"></div>
+              <h1>Inteligência<br><span class="accent">Artificial</span><br>que transforma</h1>
+              <p class="sub">Da história ao futuro — entenda a tecnologia que está redefinindo o mundo do trabalho e da vida.</p>
+              <div class="pill-grid">
+                <span class="pill">História da IA</span>
+                <span class="pill">Ferramentas</span>
+                <span class="pill">Prompts</span>
+                <span class="pill">Ética</span>
+                <span class="pill">Futuro</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="card card-left-blue">
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px">Objetivo</div>
+                <div style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6">Sair daqui sabendo usar IA com propósito, inteligência e segurança.</div>
+              </div>
+              <div class="card card-left-green">
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px">Para quem é</div>
+                <div style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6">Qualquer pessoa que queira entender e usar IA no dia a dia.</div>
+              </div>
+              <div class="card" style="border-left:3px solid #854F0B">
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px">Premissa</div>
+                <div style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6">Não é sobre tecnologia. É sobre o que você vai fazer com ela.</div>
+              </div>
+            </div>
+          </div>`
+      },
+      {
+        name: "Evolução Tecnológica",
+        render: () => `
+          <div class="tag">Contexto</div>
+          <div class="line"></div>
+          <h2>A evolução que <span class="accent">nos trouxe até aqui</span></h2>
+          <p class="sub">Cada era trouxe uma revolução. Estamos vivendo a maior delas.</p>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot">90s</div>
+              <div>
+                <div class="tl-year">1990s — A Internet</div>
+                <div class="tl-title">O mundo se conectou</div>
+                <div class="tl-desc">Informação deixou de ser privilégio de poucos. Qualquer pessoa com um computador passou a ter acesso ao conhecimento global.</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot">07</div>
+              <div>
+                <div class="tl-year">2007 — O Mobile</div>
+                <div class="tl-title">A internet foi para o bolso</div>
+                <div class="tl-desc">O iPhone muda tudo. Sempre conectado, sempre disponível. O computador virou um acessório pessoal e intransferível.</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot">10s</div>
+              <div>
+                <div class="tl-year">2010s — Big Data</div>
+                <div class="tl-title">As máquinas começaram a aprender</div>
+                <div class="tl-desc">Redes sociais, cloud e big data criam um oceano de informações. Com tanto dado disponível, os algoritmos evoluem em velocidade sem precedentes.</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot active">IA</div>
+              <div>
+                <div class="tl-year">2022 — Agora</div>
+                <div class="tl-title">A inteligência chegou ao público geral</div>
+                <div class="tl-desc">Com o ChatGPT, qualquer pessoa passou a ter um assistente inteligente na palma da mão. A IA deixou de ser ficção científica e virou ferramenta.</div>
+              </div>
+            </div>
+          </div>`
+      },
+      {
+        name: "História da IA",
+        render: () => `
+          <div class="tag">Contexto</div>
+          <div class="line"></div>
+          <h2>A IA <span class="accent">não é novidade</span> — mas nunca foi tão acessível</h2>
+          <div class="grid3" style="margin-top:32px">
+            <div class="card card-blue">
+              <div style="font-size:36px;font-weight:500;color:#7F77DD;margin-bottom:10px;line-height:1">1950</div>
+              <h3>O Teste de Turing</h3>
+              <p class="body">Alan Turing propõe: "Pode uma máquina pensar?" Ele cria um teste onde, se uma máquina conversar de forma indistinguível de um humano, pode ser considerada inteligente. Era o início de tudo.</p>
+            </div>
+            <div class="card" style="border-top:2px solid rgba(255,255,255,0.1)">
+              <div style="font-size:36px;font-weight:500;color:rgba(255,255,255,0.2);margin-bottom:10px;line-height:1">1970–90</div>
+              <h3 style="color:rgba(255,255,255,0.6)">O Inverno da IA</h3>
+              <p class="body">As promessas eram enormes, mas os computadores eram fracos. O financiamento secou. A IA ficou décadas "adormecida" por falta de poder computacional e dados suficientes.</p>
+            </div>
+            <div class="card card-green">
+              <div style="font-size:36px;font-weight:500;color:#5DCAA5;margin-bottom:10px;line-height:1">2022</div>
+              <h3>O Grande Boom</h3>
+              <p class="body">O ChatGPT atinge 100 milhões de usuários em 2 meses — o produto mais rápido a crescer na história da internet. A IA se torna democrática e acessível a qualquer pessoa.</p>
+            </div>
+          </div>
+          <div class="alert alert-info" style="margin-top:20px">
+            <strong style="color:#7F77DD">Por que agora?</strong> Três fatores se alinharam: poder computacional barato (cloud), volume absurdo de dados (internet) e algoritmos melhores (deep learning). O resultado foi uma explosão sem precedentes.
+          </div>`
+      },
+      {
+        name: "IA Preditiva vs Generativa",
+        render: () => `
+          <div class="tag">Conceito Fundamental</div>
+          <div class="line"></div>
+          <h2>Dois tipos de IA que você <span class="accent">já usa</span></h2>
+          <div class="grid2 grid2-col" style="margin-top:28px;gap:20px">
+            <div class="vs-card" style="border-top:2px solid #534AB7">
+              <div class="vs-label" style="color:#7F77DD">IA Preditiva</div>
+              <div style="font-size:20px;font-weight:500;color:#fff;margin-bottom:10px">Antecipa o que vai acontecer</div>
+              <p class="body">Analisa dados do passado para prever o futuro. Não cria nada novo — identifica padrões e toma decisões automaticamente.</p>
+              <div class="divider"></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">No seu dia a dia</div>
+              <div class="example"><strong>Netflix</strong> — "Recomendado para você"</div>
+              <div class="example"><strong>Banco</strong> — Detecta fraude no cartão</div>
+              <div class="example"><strong>Waze</strong> — Prevê o trânsito da rota</div>
+              <div class="example"><strong>Gmail</strong> — Filtra spam automaticamente</div>
+            </div>
+            <div class="vs-card" style="border-top:2px solid #1D9E75">
+              <div class="vs-label" style="color:#5DCAA5">IA Generativa</div>
+              <div style="font-size:20px;font-weight:500;color:#fff;margin-bottom:10px">Cria coisas novas do zero</div>
+              <p class="body">Aprende com bilhões de exemplos e usa esse conhecimento para gerar conteúdo original: texto, imagem, código, áudio e vídeo.</p>
+              <div class="divider"></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">No seu dia a dia</div>
+              <div class="example"><strong>ChatGPT</strong> — Escreve textos e responde dúvidas</div>
+              <div class="example"><strong>Midjourney</strong> — Cria imagens únicas</div>
+              <div class="example"><strong>ElevenLabs</strong> — Gera vozes realistas</div>
+              <div class="example"><strong>Sora</strong> — Cria vídeos a partir de texto</div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:16px;text-align:center;border-color:rgba(83,74,183,0.2)">
+            <p style="font-size:14px;color:rgba(255,255,255,0.6)">A <span style="color:#7F77DD">IA Preditiva</span> trabalha nos bastidores há anos. A <span style="color:#5DCAA5">IA Generativa</span> é o que você vê agora e que está mudando tudo ao redor.</p>
+          </div>`
+      }
+    ]
+  },
+  {
+    label: "02 — Impacto",
+    tag: "green",
+    slides: [
+      {
+        name: "O Poder da IA",
+        render: () => `
+          <div class="tag green">O Despertar</div>
+          <div class="line"></div>
+          <h2>O poder que coloca a <span class="accent-green">IA em outro nível</span></h2>
+          <div class="grid3" style="margin-top:32px">
+            <div class="card card-green">
+              <div style="font-size:11px;color:#5DCAA5;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Velocidade</div>
+              <div style="font-size:40px;font-weight:500;color:#5DCAA5;line-height:1;margin-bottom:10px">1000x</div>
+              <h3>Processa em segundos</h3>
+              <p class="body">O que levaria horas de leitura humana — um relatório de 200 páginas, por exemplo — uma IA lê, analisa e resume em segundos. A velocidade de processamento não tem comparação.</p>
+            </div>
+            <div class="card card-blue">
+              <div style="font-size:11px;color:#7F77DD;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Volume</div>
+              <div style="font-size:40px;font-weight:500;color:#7F77DD;line-height:1;margin-bottom:10px">∞</div>
+              <h3>Analisa sem limite</h3>
+              <p class="body">A IA foi treinada com uma fração enorme da internet — livros, artigos, código e conversas. Ela consegue cruzar e conectar informações de formas que seriam impossíveis para um humano.</p>
+            </div>
+            <div class="card card-amber">
+              <div style="font-size:11px;color:#EF9F27;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Criatividade</div>
+              <div style="font-size:40px;font-weight:500;color:#EF9F27;line-height:1;margin-bottom:10px">24/7</div>
+              <h3>Nunca para de criar</h3>
+              <p class="body">A IA não tem bloqueio criativo, não tem cansaço, não tem dias ruins. Ela produz texto, imagem, código e estratégia a qualquer hora, com qualidade consistente e sem reclamar.</p>
+            </div>
+          </div>
+          <div class="alert alert-info" style="margin-top:20px">
+            <strong style="color:#7F77DD">O ponto central:</strong> A IA não pensa como você — mas executa muito mais rápido. Sua vantagem competitiva está em saber o que pedir e como usar o resultado.
+          </div>`
+      },
+      {
+        name: "IA vai roubar meu emprego?",
+        render: () => `
+          <div class="tag green">Mercado de Trabalho</div>
+          <div class="line"></div>
+          <h2>A pergunta que todo mundo <span class="accent-green">tem medo de fazer</span></h2>
+          <div class="grid2" style="margin-top:32px;align-items:start">
+            <div>
+              <div class="card" style="border-top:2px solid rgba(162,45,45,0.6);margin-bottom:16px">
+                <div style="font-size:11px;color:rgba(200,100,100,0.8);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">O medo</div>
+                <p style="font-size:16px;color:rgba(255,255,255,0.75);line-height:1.6">"A IA vai me substituir e eu vou perder meu emprego."</p>
+              </div>
+              <div class="card card-green" style="margin-bottom:16px">
+                <div style="font-size:11px;color:#5DCAA5;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">A realidade</div>
+                <p style="font-size:16px;color:rgba(255,255,255,0.75);line-height:1.6">A IA não substitui o profissional — <strong style="color:#5DCAA5">mas o profissional que usa IA substitui o que não usa.</strong></p>
+              </div>
+              <div class="alert alert-info">
+                Historicamente, toda grande revolução tecnológica eliminou algumas funções e criou dezenas de outras. A internet acabou com as agências de viagem tradicionais — e criou o turismo digital, influencers de viagem e plataformas bilionárias.
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">O que a IA faz vs o que ela não faz</div>
+              <div class="step-row">
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(162,45,45,0.2);border:1px solid rgba(200,100,100,0.3);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">✗</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:rgba(255,180,180,0.8);margin-bottom:3px">O que ela substitui</div>
+                  <div class="body">Tarefas repetitivas, formatação, geração de rascunhos, transcrição, resumos e busca de informações.</div>
+                </div>
+              </div>
+              <div class="step-row">
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(29,158,117,0.2);border:1px solid rgba(29,158,117,0.4);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">✓</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:#5DCAA5;margin-bottom:3px">O que ela não substitui</div>
+                  <div class="body">Julgamento humano, relação de confiança, liderança, empatia, criatividade estratégica e responsabilidade ética.</div>
+                </div>
+              </div>
+              <div class="step-row">
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(83,74,183,0.2);border:1px solid #534AB7;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">★</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:#7F77DD;margin-bottom:3px">O que vai ser valorizado</div>
+                  <div class="body">Profissionais que usam IA para ser mais estratégicos, criativos e rápidos do que todos os outros.</div>
+                </div>
+              </div>
+            </div>
+          </div>`
+      },
+      {
+        name: "Otimização de Tempo",
+        render: () => `
+          <div class="tag green">Produtividade</div>
+          <div class="line"></div>
+          <h2>Do operacional para o <span class="accent-green">estratégico</span></h2>
+          <p class="sub">Como a IA libera horas do seu dia para você focar no que realmente importa.</p>
+          <div class="grid2" style="margin-top:32px;align-items:start;gap:32px">
+            <div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">Antes da IA</div>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(162,45,45,0.15);border-color:rgba(200,100,100,0.3);color:rgba(200,100,100,0.7)">1</div>
+                <div><div style="font-size:14px;color:rgba(255,255,255,0.6)">Redige e-mail para o cliente: <strong style="color:rgba(255,200,200,0.7)">40 min</strong></div></div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(162,45,45,0.15);border-color:rgba(200,100,100,0.3);color:rgba(200,100,100,0.7)">2</div>
+                <div><div style="font-size:14px;color:rgba(255,255,255,0.6)">Resume relatório de 80 páginas: <strong style="color:rgba(255,200,200,0.7)">3 horas</strong></div></div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(162,45,45,0.15);border-color:rgba(200,100,100,0.3);color:rgba(200,100,100,0.7)">3</div>
+                <div><div style="font-size:14px;color:rgba(255,255,255,0.6)">Cria apresentação do zero: <strong style="color:rgba(255,200,200,0.7)">2 horas</strong></div></div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(162,45,45,0.15);border-color:rgba(200,100,100,0.3);color:rgba(200,100,100,0.7)">4</div>
+                <div><div style="font-size:14px;color:rgba(255,255,255,0.6)">Pesquisa de mercado manual: <strong style="color:rgba(255,200,200,0.7)">4 horas</strong></div></div>
+              </div>
+              <div class="card" style="margin-top:16px;border-left:3px solid rgba(200,100,100,0.5)">
+                <div style="font-size:22px;font-weight:500;color:rgba(255,150,150,0.8)">~10 horas</div>
+                <div class="body">gastas com trabalho operacional</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">Com a IA</div>
+              <div class="step-row">
+                <div class="step-dot">1</div>
+                <div><div style="font-size:14px;color:rgba(255,255,255,0.6)">Redige e-mail para o cliente: <strong style="color:#5DCAA5">3 min</strong></div></div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot">2</div>
+                <div><div style="font-size:14px;color:rgba(255,255,255,0.6)">Resume relatório de 80 páginas: <strong style="color:#5DCAA5">2 min</strong></div></div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot">3</div>
+                <div><div style="font-size:14px;color:rgba(255,255,255,0.6)">Cria apresentação do zero: <strong style="color:#5DCAA5">15 min</strong></div></div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot">4</div>
+                <div><div style="font-size:14px;color:rgba(255,255,255,0.6)">Pesquisa de mercado: <strong style="color:#5DCAA5">20 min</strong></div></div>
+              </div>
+              <div class="card card-left-green" style="margin-top:16px">
+                <div style="font-size:22px;font-weight:500;color:#5DCAA5">~40 minutos</div>
+                <div class="body">sobram horas para pensar, criar e liderar</div>
+              </div>
+            </div>
+          </div>`
+      }
+    ]
+  },
+  {
+    label: "03 — Ferramentas",
+    tag: "coral",
+    slides: [
+      {
+        name: "Visão Geral",
+        render: () => `
+          <div class="tag coral">Ecossistema de IA</div>
+          <div class="line"></div>
+          <h2>O arsenal: <span class="accent-coral">cada ferramenta tem seu super poder</span></h2>
+          <p class="sub">Não existe a ferramenta perfeita para tudo — existe a ferramenta certa para cada tarefa.</p>
+          <div class="grid4" style="margin-top:32px">
+            <div class="pillar" style="border-top:2px solid #534AB7">
+              <div style="font-size:24px;margin-bottom:10px">💬</div>
+              <div style="font-size:13px;font-weight:500;color:#AFA9EC;margin-bottom:6px">Texto e Raciocínio</div>
+              <p class="body" style="font-size:12px">LLMs — os cérebros da IA</p>
+            </div>
+            <div class="pillar" style="border-top:2px solid #D85A30">
+              <div style="font-size:24px;margin-bottom:10px">🖼</div>
+              <div style="font-size:13px;font-weight:500;color:#F0997B;margin-bottom:6px">Imagens</div>
+              <p class="body" style="font-size:12px">Criação e edição visual</p>
+            </div>
+            <div class="pillar" style="border-top:2px solid #1D9E75">
+              <div style="font-size:24px;margin-bottom:10px">🎬</div>
+              <div style="font-size:13px;font-weight:500;color:#5DCAA5;margin-bottom:6px">Áudio e Vídeo</div>
+              <p class="body" style="font-size:12px">A nova fronteira</p>
+            </div>
+            <div class="pillar" style="border-top:2px solid #BA7517">
+              <div style="font-size:24px;margin-bottom:10px">⚡</div>
+              <div style="font-size:13px;font-weight:500;color:#EF9F27;margin-bottom:6px">Produtividade</div>
+              <p class="body" style="font-size:12px">IA onde você já trabalha</p>
+            </div>
+          </div>
+          <div class="alert alert-info" style="margin-top:24px">
+            <strong style="color:#7F77DD">Estratégia inteligente:</strong> Você não precisa de todas as ferramentas. Escolha 2 ou 3 que resolvem os seus problemas e domine-as antes de adicionar novas ao repertório.
+          </div>`
+      },
+      {
+        name: "Texto e Raciocínio",
+        render: () => `
+          <div class="tag coral">LLMs</div>
+          <div class="line"></div>
+          <h2>Os <span class="accent-coral">cérebros</span> da IA — texto, análise e raciocínio</h2>
+          <div class="grid3" style="margin-top:28px">
+            <div class="tool-card card-blue">
+              <div class="tool-name">ChatGPT</div>
+              <div class="tool-maker">OpenAI</div>
+              <span class="tool-badge badge-blue">Mais popular</span>
+              <p class="body">O mais versátil e acessível. Ótimo para tarefas gerais, raciocínio lógico, análise de dados e geração de conteúdo. Tem versão gratuita robusta e integra imagens com DALL-E.</p>
+              <div class="divider"></div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:8px">Use para</div>
+              <div class="example">Rascunhar e-mails e documentos</div>
+              <div class="example">Analisar planilhas e dados</div>
+              <div class="example">Criar roteiros e apresentações</div>
+            </div>
+            <div class="tool-card card-blue">
+              <div class="tool-name">Claude</div>
+              <div class="tool-maker">Anthropic</div>
+              <span class="tool-badge badge-blue">Rei da escrita</span>
+              <p class="body">Excelente para escrever de forma natural, empática e humana. Destaque absoluto na análise de documentos gigantescos — suporta PDFs completos no contexto.</p>
+              <div class="divider"></div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:8px">Use para</div>
+              <div class="example">Escrita longa e natural</div>
+              <div class="example">Análise de PDFs e contratos</div>
+              <div class="example">Revisão e melhoria de textos</div>
+            </div>
+            <div class="tool-card card-blue">
+              <div class="tool-name">Gemini</div>
+              <div class="tool-maker">Google</div>
+              <span class="tool-badge badge-blue">Conectado ao Google</span>
+              <p class="body">A melhor opção para pesquisas com informações em tempo real. Integra nativamente com Google Docs, Drive, Gmail e todo o ecossistema Google.</p>
+              <div class="divider"></div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:8px">Use para</div>
+              <div class="example">Pesquisas atualizadas na web</div>
+              <div class="example">Trabalhar dentro do Google</div>
+              <div class="example">Resumir e-mails do Gmail</div>
+            </div>
+          </div>`
+      },
+      {
+        name: "Geração de Imagens",
+        render: () => `
+          <div class="tag coral">Imagens</div>
+          <div class="line"></div>
+          <h2>Da imaginação à <span class="accent-coral">imagem em segundos</span></h2>
+          <div class="grid2" style="margin-top:28px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="tool-card card-coral">
+                <div class="tool-name">Midjourney</div>
+                <div class="tool-maker">Via Discord</div>
+                <span class="tool-badge badge-coral">Maior qualidade artística</span>
+                <p class="body">A ferramenta de referência para quem busca fotorrealismo e qualidade artística impressionante. Exige mais curva de aprendizado — opera via Discord com comandos específicos.</p>
+                <div class="example" style="margin-top:12px"><strong>Ideal para:</strong> arte, fotografia conceitual, material visual premium</div>
+              </div>
+              <div class="tool-card" style="border-top:2px solid #534AB7">
+                <div class="tool-name">DALL-E 3</div>
+                <div class="tool-maker">OpenAI — dentro do ChatGPT</div>
+                <span class="tool-badge badge-blue">Fiel ao prompt</span>
+                <p class="body">A melhor para seguir instruções à risca. Se você descreve algo específico, ela entrega exatamente o que foi pedido. Acessível direto do ChatGPT.</p>
+                <div class="example" style="margin-top:12px"><strong>Ideal para:</strong> imagens com textos, seguir conceitos exatos</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="tool-card" style="border-top:2px solid #1D9E75">
+                <div class="tool-name">Canva AI</div>
+                <div class="tool-maker">Canva</div>
+                <span class="tool-badge badge-green">Mais fácil de usar</span>
+                <p class="body">Integrado à plataforma de design mais popular do mundo. Gera e edita imagens dentro do Canva com facilidade. Perfeito para quem já usa Canva no dia a dia.</p>
+                <div class="example" style="margin-top:12px"><strong>Ideal para:</strong> posts de redes sociais, apresentações, marketing</div>
+              </div>
+              <div class="tool-card" style="border-top:2px solid #BA7517">
+                <div class="tool-name">Leonardo.ai</div>
+                <div class="tool-maker">Leonardo</div>
+                <span class="tool-badge badge-amber">Controle avançado</span>
+                <p class="body">Alternativa profissional com recursos avançados de controle de estilo e personagem. Ótimo para criar imagens com consistência visual entre diferentes criações.</p>
+                <div class="example" style="margin-top:12px"><strong>Ideal para:</strong> personagens consistentes, estilos personalizados</div>
+              </div>
+            </div>
+          </div>`
+      },
+      {
+        name: "Áudio e Vídeo",
+        render: () => `
+          <div class="tag coral">Nova Fronteira</div>
+          <div class="line"></div>
+          <h2>Voz e vídeo gerados por <span class="accent-coral">inteligência artificial</span></h2>
+          <p class="sub">A tecnologia que parecia ficção científica há 3 anos é realidade hoje.</p>
+          <div class="grid3" style="margin-top:32px">
+            <div class="tool-card card-green" style="grid-column:span 1">
+              <div class="tool-name">ElevenLabs</div>
+              <div class="tool-maker">ElevenLabs</div>
+              <span class="tool-badge badge-green">A voz mais realista</span>
+              <p class="body">A referência global em síntese de voz. Gera vozes ultra-realistas em português e tem recursos de clonagem de voz — você pode criar uma versão digital da sua própria voz.</p>
+              <div class="divider"></div>
+              <div class="example"><strong>Caso de uso:</strong> Narrar vídeos, criar podcasts, fazer audiobooks sem gravar</div>
+            </div>
+            <div class="tool-card" style="border-top:2px solid #534AB7">
+              <div class="tool-name">HeyGen</div>
+              <div class="tool-maker">HeyGen</div>
+              <span class="tool-badge badge-blue">Avatar digital</span>
+              <p class="body">Cria vídeos com avatares virtuais hiper-realistas. Você digita o roteiro e o avatar fala. Ideal para criar vídeos de vendas, tutoriais e treinamentos sem aparecer na câmera.</p>
+              <div class="divider"></div>
+              <div class="example"><strong>Caso de uso:</strong> Vídeos de onboarding, treinamentos internos, conteúdo em escala</div>
+            </div>
+            <div class="tool-card" style="border-top:2px solid #D85A30">
+              <div class="tool-name">Synthesia</div>
+              <div class="tool-maker">Synthesia</div>
+              <span class="tool-badge badge-coral">Foco corporativo</span>
+              <p class="body">Similar ao HeyGen com foco em empresas. Excelente para equipes que precisam criar vídeos de treinamento, comunicados internos e apresentações de produto em larga escala.</p>
+              <div class="divider"></div>
+              <div class="example"><strong>Caso de uso:</strong> Treinamentos corporativos, comunicação interna em escala</div>
+            </div>
+          </div>`
+      },
+      {
+        name: "Produtividade",
+        render: () => `
+          <div class="tag coral">No Fluxo de Trabalho</div>
+          <div class="line"></div>
+          <h2>IA onde o seu trabalho <span class="accent-coral">já acontece</span></h2>
+          <p class="sub">As melhores ferramentas são as que entram no seu fluxo sem criar mais etapas.</p>
+          <div class="grid2" style="margin-top:28px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="tool-card" style="border-top:2px solid #534AB7">
+                <div class="tool-name">Gamma App</div>
+                <div class="tool-maker">Gamma</div>
+                <span class="tool-badge badge-blue">Apresentações em 1 prompt</span>
+                <p class="body">Cria apresentações completas de slides a partir de um único parágrafo de texto. Você descreve o tema e ele gera estrutura, design e conteúdo automaticamente.</p>
+                <div class="example" style="margin-top:12px"><strong>Experimente:</strong> "Crie uma apresentação sobre estratégias de vendas para 2025" — pronto em 30 segundos.</div>
+              </div>
+              <div class="tool-card" style="border-top:2px solid #D85A30">
+                <div class="tool-name">Tome</div>
+                <div class="tool-maker">Tome</div>
+                <span class="tool-badge badge-coral">Narrativa visual</span>
+                <p class="body">Alternativa ao Gamma com foco em storytelling visual. Gera apresentações com narrativa envolvente, ideal para pitch de projetos e reuniões executivas.</p>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="tool-card" style="border-top:2px solid #1D9E75">
+                <div class="tool-name">Notion AI</div>
+                <div class="tool-maker">Notion</div>
+                <span class="tool-badge badge-green">IA integrada ao workspace</span>
+                <p class="body">IA dentro do Notion — resume páginas longas, gera rascunhos, cria listas de ação a partir de notas de reunião e responde perguntas sobre o conteúdo da sua base de conhecimento.</p>
+                <div class="example" style="margin-top:12px"><strong>Caso de uso:</strong> "Resuma essa reunião e liste os próximos passos" — em segundos.</div>
+              </div>
+              <div class="tool-card" style="border-top:2px solid #BA7517">
+                <div class="tool-name">Microsoft Copilot</div>
+                <div class="tool-maker">Microsoft</div>
+                <span class="tool-badge badge-amber">No pacote Office</span>
+                <p class="body">IA integrada ao Word, Excel, PowerPoint e Teams. Resume reuniões, sugere dados para planilhas, gera slides e rascunha e-mails — tudo dentro do Office que você já usa.</p>
+              </div>
+            </div>
+          </div>`
+      }
+    ]
+  },
+  {
+    label: "04 — Prompts",
+    tag: "purple",
+    slides: [
+      {
+        name: "O que é um Prompt",
+        render: () => `
+          <div class="tag">Habilidade do Futuro</div>
+          <div class="line"></div>
+          <h2>Prompts: a arte de <span class="accent">conversar com a máquina</span></h2>
+          <div class="grid2" style="margin-top:32px;align-items:start">
+            <div>
+              <div class="card" style="margin-bottom:16px;border-left:3px solid rgba(255,255,255,0.15)">
+                <div style="font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Busca no Google</div>
+                <p style="font-size:16px;color:rgba(255,255,255,0.7);font-style:italic">"restaurante italiano sp"</p>
+                <div class="divider"></div>
+                <p class="body">Palavras-chave soltas. Você recebe links e precisa garimpar a informação sozinho. A lógica é "onde buscar".</p>
+              </div>
+              <div class="card card-left-blue">
+                <div style="font-size:11px;color:#7F77DD;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Comando de IA (Prompt)</div>
+                <p style="font-size:16px;color:rgba(255,255,255,0.85);font-style:italic">"Sou de São Paulo, moro no Itaim. Quero jantar com minha namorada neste sábado, algo romântico e com massa fresca. Qual restaurante você indicaria e por quê?"</p>
+                <div class="divider"></div>
+                <p class="body">Uma conversa contextual. A IA entende o cenário completo e entrega uma resposta personalizada, não apenas links.</p>
+              </div>
+            </div>
+            <div>
+              <div class="alert alert-info" style="margin-bottom:16px">
+                <strong style="color:#7F77DD">A virada de chave:</strong> Para de buscar palavras-chave e começa a ter uma conversa. A IA é um especialista disponível 24/7 — trate-a como tal.
+              </div>
+              <div class="card">
+                <h3 style="margin-bottom:16px">A analogia perfeita</h3>
+                <p class="body" style="margin-bottom:12px">Imagine contratar um assistente pessoal extremamente competente. Você não diria apenas "restaurante". Você explicaria o contexto, o objetivo, as preferências e o que espera receber.</p>
+                <p class="body">Com a IA é exatamente igual. <strong style="color:rgba(255,255,255,0.8)">Quanto mais contexto você fornece, mais precisa e útil é a resposta.</strong></p>
+              </div>
+            </div>
+          </div>`
+      },
+      {
+        name: "Estrutura do Prompt Perfeito",
+        render: () => `
+          <div class="tag">Engenharia de Prompt</div>
+          <div class="line"></div>
+          <h2>Os 4 pilares de um <span class="accent">prompt poderoso</span></h2>
+          <div class="grid4" style="margin-top:32px">
+            <div class="pillar" style="border-top:2px solid #534AB7">
+              <div class="pillar-num">01</div>
+              <h3 style="margin-bottom:10px">Contexto</h3>
+              <p class="body">Quem você é, qual é a situação, o que já existe. Coloque a IA no seu cenário.</p>
+              <div class="example" style="margin-top:12px;text-align:left"><strong>Ex:</strong> "Sou gerente de vendas de uma empresa B2B com 50 funcionários..."</div>
+            </div>
+            <div class="pillar" style="border-top:2px solid #1D9E75">
+              <div class="pillar-num" style="color:#1D9E75">02</div>
+              <h3 style="margin-bottom:10px">Tarefa</h3>
+              <p class="body">O que exatamente você quer que ela faça. Seja específico e direto.</p>
+              <div class="example" style="margin-top:12px;text-align:left"><strong>Ex:</strong> "...escreva um e-mail de follow-up para um cliente que não respondeu há 2 semanas."</div>
+            </div>
+            <div class="pillar" style="border-top:2px solid #D85A30">
+              <div class="pillar-num" style="color:#D85A30">03</div>
+              <h3 style="margin-bottom:10px">Formato</h3>
+              <p class="body">Como você quer receber a resposta — lista, parágrafos, tabela, tamanho.</p>
+              <div class="example" style="margin-top:12px;text-align:left"><strong>Ex:</strong> "...em no máximo 5 linhas, sem linguagem técnica, com um call-to-action claro."</div>
+            </div>
+            <div class="pillar" style="border-top:2px solid #BA7517">
+              <div class="pillar-num" style="color:#BA7517">04</div>
+              <h3 style="margin-bottom:10px">Tom</h3>
+              <p class="body">O estilo da resposta — formal, casual, empático, direto, técnico.</p>
+              <div class="example" style="margin-top:12px;text-align:left"><strong>Ex:</strong> "...tom amigável mas profissional, sem parecer desesperado."</div>
+            </div>
+          </div>
+          <div class="alert alert-success" style="margin-top:20px">
+            <strong style="color:#5DCAA5">Fórmula resumida:</strong> [Contexto] + [Tarefa] + [Formato] + [Tom] = Resultado que você realmente vai usar.
+          </div>`
+      },
+      {
+        name: "Prompt Fraco vs Poderoso",
+        render: () => `
+          <div class="tag">Na Prática</div>
+          <div class="line"></div>
+          <h2>Veja a diferença que um <span class="accent">bom prompt faz</span></h2>
+          <div class="grid2" style="margin-top:28px;gap:24px">
+            <div>
+              <div style="font-size:11px;color:rgba(200,100,100,0.8);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Prompt fraco</div>
+              <div class="prompt-bad">
+                <div class="prompt-label" style="color:rgba(200,100,100,0.6)">O que foi pedido</div>
+                <div class="prompt-text">"escreva um texto sobre vendas"</div>
+              </div>
+              <div class="card" style="margin-top:12px;border-color:rgba(200,100,100,0.15)">
+                <div class="prompt-label" style="color:rgba(200,100,100,0.5)">O que a IA entregou</div>
+                <p class="body" style="font-style:italic;line-height:1.8">"Vendas é uma área fundamental para qualquer empresa. Para ter sucesso em vendas, é necessário entender as necessidades do cliente, construir relacionamentos e oferecer soluções de valor..."</p>
+                <div class="divider"></div>
+                <p style="font-size:12px;color:rgba(200,100,100,0.6)">Genérico. Poderia ter sido escrito sobre qualquer empresa, em qualquer contexto. Inútil.</p>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#5DCAA5;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Prompt poderoso</div>
+              <div class="prompt-good">
+                <div class="prompt-label" style="color:#5DCAA5">O que foi pedido</div>
+                <div class="prompt-text">"Sou vendedor de software para RH. Preciso de um e-mail para reativar um cliente que comprou há 1 ano e sumiu. Tom: amigável e direto. Máximo 6 linhas. Sem parecer desesperado."</div>
+              </div>
+              <div class="card" style="margin-top:12px;border-color:rgba(29,158,117,0.2)">
+                <div class="prompt-label" style="color:#5DCAA5">O que a IA entregou</div>
+                <p class="body" style="font-style:italic;line-height:1.8">"Oi [Nome], espero que esteja bem! Faz um tempo que não nos falamos e queria saber como o RH está indo por aí. Lançamos algumas melhorias que outros clientes adoraram — posso te mostrar em 15 minutos?"</p>
+                <div class="divider"></div>
+                <p style="font-size:12px;color:#5DCAA5">Personalizado, direto e pronto para usar. Zerou a distância entre IA e realidade.</p>
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-info" style="margin-top:16px">
+            <strong style="color:#7F77DD">Regra de ouro:</strong> Se a resposta da IA foi vaga, a culpa é do prompt. Seja mais específico, adicione contexto e reformule. A IA é tão boa quanto o que você pediu.
+          </div>`
+      }
+    ]
+  },
+  {
+    label: "05 — Ética e Limites",
+    tag: "amber",
+    slides: [
+      {
+        name: "Alucinações",
+        render: () => `
+          <div class="tag amber">Banho de Realidade</div>
+          <div class="line"></div>
+          <h2>Alucinações: quando a IA <span class="accent-amber">mente com confiança</span></h2>
+          <div class="grid2" style="margin-top:32px;align-items:start">
+            <div>
+              <div class="card card-amber">
+                <h3 style="margin-bottom:12px">O que é uma alucinação?</h3>
+                <p class="body">Alucinação é quando a IA gera uma informação falsa, mas apresenta com total confiança — como se fosse verdade absoluta. Ela não "sabe" que está errando.</p>
+                <div class="divider"></div>
+                <p class="body">Isso acontece porque a IA não "consulta" um banco de dados de fatos. Ela <strong style="color:rgba(255,255,255,0.8)">prevê a próxima palavra</strong> mais provável com base no que aprendeu. Às vezes essa previsão está errada.</p>
+              </div>
+              <div class="alert alert-warn" style="margin-top:16px">
+                <strong style="color:#EF9F27">Caso real:</strong> Um advogado nos EUA citou jurisprudências geradas pelo ChatGPT em um processo — os casos não existiam. O juiz percebeu. A consequência foi grave.
+              </div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">Como se proteger</div>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(186,117,23,0.2);border-color:#BA7517;color:#EF9F27">1</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.8);margin-bottom:4px">Sempre verifique dados críticos</div>
+                  <p class="body">Datas, nomes de pessoas, estatísticas, leis e referências devem ser sempre checados em fontes oficiais.</p>
+                </div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(186,117,23,0.2);border-color:#BA7517;color:#EF9F27">2</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.8);margin-bottom:4px">Pergunte a IA sobre ela mesma</div>
+                  <p class="body">Adicione ao prompt: "Se você não tiver certeza sobre algo, me diga explicitamente." Isso reduz alucinações significativamente.</p>
+                </div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(186,117,23,0.2);border-color:#BA7517;color:#EF9F27">3</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.8);margin-bottom:4px">Use IA como rascunho, não como verdade final</div>
+                  <p class="body">A IA acelera — mas o julgamento final, especialmente em decisões importantes, sempre é seu.</p>
+                </div>
+              </div>
+            </div>
+          </div>`
+      },
+      {
+        name: "Privacidade e Segurança",
+        render: () => `
+          <div class="tag amber">Segurança</div>
+          <div class="line"></div>
+          <h2>O que você <span class="accent-amber">nunca deve</span> colocar em uma IA aberta</h2>
+          <div class="grid2" style="margin-top:28px;align-items:start">
+            <div>
+              <div class="card" style="border-top:2px solid rgba(162,45,45,0.7);margin-bottom:16px">
+                <div style="font-size:11px;color:rgba(200,100,100,0.8);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">Nunca insira em IAs públicas</div>
+                <div class="step-row" style="padding:10px 0">
+                  <div style="color:rgba(200,100,100,0.7);font-size:16px;flex-shrink:0">×</div>
+                  <p class="body">Senhas, tokens de acesso ou credenciais de sistemas</p>
+                </div>
+                <div class="step-row" style="padding:10px 0">
+                  <div style="color:rgba(200,100,100,0.7);font-size:16px;flex-shrink:0">×</div>
+                  <p class="body">Dados pessoais de clientes (CPF, e-mail, endereço)</p>
+                </div>
+                <div class="step-row" style="padding:10px 0">
+                  <div style="color:rgba(200,100,100,0.7);font-size:16px;flex-shrink:0">×</div>
+                  <p class="body">Estratégias e planos confidenciais da empresa</p>
+                </div>
+                <div class="step-row" style="padding:10px 0;border-bottom:none">
+                  <div style="color:rgba(200,100,100,0.7);font-size:16px;flex-shrink:0">×</div>
+                  <p class="body">Informações financeiras sensíveis ou sigilosas</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="alert alert-warn" style="margin-bottom:16px">
+                <strong style="color:#EF9F27">Por que isso importa?</strong> Em IAs públicas e gratuitas, as conversas podem ser usadas para treinar modelos futuros. O que você digita pode não ser tão privado quanto parece.
+              </div>
+              <div class="card card-left-green">
+                <div style="font-size:11px;color:#5DCAA5;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Boas práticas</div>
+                <div class="step-row" style="padding:8px 0">
+                  <div style="color:#5DCAA5;font-size:16px;flex-shrink:0">✓</div>
+                  <p class="body">Use versões pagas ou enterprise — têm políticas de privacidade mais rígidas</p>
+                </div>
+                <div class="step-row" style="padding:8px 0">
+                  <div style="color:#5DCAA5;font-size:16px;flex-shrink:0">✓</div>
+                  <p class="body">Anonimize dados antes de enviar — troque nomes por "Cliente A"</p>
+                </div>
+                <div class="step-row" style="padding:8px 0;border-bottom:none">
+                  <div style="color:#5DCAA5;font-size:16px;flex-shrink:0">✓</div>
+                  <p class="body">Verifique se a empresa tem política de IA antes de liberar o uso corporativo</p>
+                </div>
+              </div>
+            </div>
+          </div>`
+      },
+      {
+        name: "Viés e Ética",
+        render: () => `
+          <div class="tag amber">Ética</div>
+          <div class="line"></div>
+          <h2>A IA reflete <span class="accent-amber">quem a treinou</span> — e os dados que consumiu</h2>
+          <div class="grid2" style="margin-top:32px;align-items:start">
+            <div>
+              <div class="card card-amber">
+                <h3 style="margin-bottom:12px">O que é viés na IA?</h3>
+                <p class="body">A IA aprende com dados criados por humanos — e humanos têm preconceitos, perspectivas limitadas e representam mal algumas culturas e grupos.</p>
+                <div class="divider"></div>
+                <p class="body">Se os dados de treinamento super-representam um grupo e ignoram outro, a IA reproduz e amplifica essa desigualdade nas suas respostas.</p>
+              </div>
+              <div class="alert alert-warn" style="margin-top:16px">
+                <strong style="color:#EF9F27">Exemplo prático:</strong> IAs treinadas principalmente em inglês têm desempenho inferior em português. IAs treinadas com textos históricos podem reproduzir visões de mundo desatualizadas sobre gênero, raça e cultura.
+              </div>
+            </div>
+            <div>
+              <h3 style="margin-bottom:20px;color:rgba(255,255,255,0.8)">As questões éticas centrais</h3>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(186,117,23,0.15);border-color:#BA7517;color:#EF9F27">!</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.8);margin-bottom:4px">Transparência</div>
+                  <p class="body">Quando você usa IA para criar um conteúdo, você deve deixar isso claro? Em contextos profissionais e acadêmicos, sim — cada vez mais isso é esperado.</p>
+                </div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(186,117,23,0.15);border-color:#BA7517;color:#EF9F27">!</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.8);margin-bottom:4px">Dependência excessiva</div>
+                  <p class="body">Usar IA para tudo pode atrofiar habilidades críticas. Equilíbrio é fundamental — use IA para ampliar, não para substituir o seu pensamento.</p>
+                </div>
+              </div>
+              <div class="step-row">
+                <div class="step-dot" style="background:rgba(186,117,23,0.15);border-color:#BA7517;color:#EF9F27">!</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.8);margin-bottom:4px">Responsabilidade</div>
+                  <p class="body">Se a IA gera algo errado ou prejudicial e você publicou, a responsabilidade é sua. A IA é a ferramenta — você é o autor.</p>
+                </div>
+              </div>
+            </div>
+          </div>`
+      }
+    ]
+  },
+  {
+    label: "06 — Futuro",
+    tag: "purple",
+    slides: [
+      {
+        name: "O que vem por aí",
+        render: () => `
+          <div class="tag">O Próximo Passo</div>
+          <div class="line"></div>
+          <h2>O futuro já está <span class="accent">acontecendo</span></h2>
+          <p class="sub">Três tendências que vão redefinir o jeito que trabalhamos nos próximos anos.</p>
+          <div class="grid3" style="margin-top:32px">
+            <div class="future-card fc1">
+              <div class="future-num">01</div>
+              <div style="font-size:11px;color:#7F77DD;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Agentes Autônomos</div>
+              <h3 style="margin-bottom:12px">IAs que trabalham sem você pedir</h3>
+              <p class="body">Agentes de IA já conseguem navegar na internet, agendar reuniões, criar arquivos e disparar e-mails de forma autônoma. Em breve, IAs diferentes vão se comunicar entre si para completar tarefas complexas sem intervenção humana.</p>
+              <div class="example" style="margin-top:16px"><strong>Já existe:</strong> Operador da OpenAI, Agentes do Claude, AutoGPT</div>
+            </div>
+            <div class="future-card fc2">
+              <div class="future-num">02</div>
+              <div style="font-size:11px;color:#5DCAA5;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Vídeo Instantâneo</div>
+              <h3 style="margin-bottom:12px">Do texto ao vídeo em segundos</h3>
+              <p class="body">Ferramentas como o Sora (OpenAI) já geram vídeos realistas a partir de texto. A tendência é que em poucos anos qualquer pessoa produza um vídeo cinematográfico descrevendo o que quer — sem câmera, sem edição.</p>
+              <div class="example" style="margin-top:16px"><strong>Já existe:</strong> Sora, Runway Gen-3, Kling AI, Pika Labs</div>
+            </div>
+            <div class="future-card fc3">
+              <div class="future-num">03</div>
+              <div style="font-size:11px;color:#EF9F27;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">IA Invisível</div>
+              <h3 style="margin-bottom:12px">Integrada em tudo, sem que você perceba</h3>
+              <p class="body">A IA vai deixar de ser um app separado e vai estar integrada em todos os softwares, dispositivos e ambientes. Óculos inteligentes, carros, geladeiras, sistemas operacionais — a IA será o assistente onipresente e silencioso.</p>
+              <div class="example" style="margin-top:16px"><strong>Já existe:</strong> Apple Intelligence, Google Gemini no Android, Copilot no Windows</div>
+            </div>
+          </div>`
+      },
+      {
+        name: "Conclusão",
+        render: () => `
+          <div class="tag">Próximo Passo</div>
+          <div class="grid2" style="gap:60px">
+            <div>
+              <div class="line"></div>
+              <h2>A pergunta não é <span class="accent">"se"</span> — é <span class="accent">"quando"</span></h2>
+              <p class="sub" style="margin-top:20px">A IA não vai esperar você estar pronto. A boa notícia: você já deu o primeiro passo estando aqui.</p>
+              <div class="quote">
+                <div class="quote-text">A tecnologia é uma ferramenta. O que você constrói com ela — isso é o que define quem você é.</div>
+              </div>
+              <div class="pill-grid" style="margin-top:28px">
+                <span class="pill">Comece pelo ChatGPT</span>
+                <span class="pill">Faça um prompt por dia</span>
+                <span class="pill">Compartilhe o que aprendeu</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="card card-left-blue">
+                <div style="font-size:12px;color:#7F77DD;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Recapitulando</div>
+                <div class="step-row" style="padding:8px 0"><div style="color:#7F77DD;flex-shrink:0">→</div><p class="body">A IA veio de décadas de pesquisa — e explodiu agora</p></div>
+                <div class="step-row" style="padding:8px 0"><div style="color:#7F77DD;flex-shrink:0">→</div><p class="body">Ela não substitui você — amplifica quem você já é</p></div>
+                <div class="step-row" style="padding:8px 0"><div style="color:#7F77DD;flex-shrink:0">→</div><p class="body">Existe uma ferramenta certa para cada tarefa</p></div>
+                <div class="step-row" style="padding:8px 0"><div style="color:#7F77DD;flex-shrink:0">→</div><p class="body">O prompt é a habilidade mais valiosa que você pode desenvolver agora</p></div>
+                <div class="step-row" style="padding:8px 0;border-bottom:none"><div style="color:#7F77DD;flex-shrink:0">→</div><p class="body">Use com ética, verifique sempre e mantenha o juízo crítico</p></div>
+              </div>
+              <div class="alert alert-success">
+                <strong style="color:#5DCAA5">Sua missão desta semana:</strong> Abra o ChatGPT e resolva um problema real do seu trabalho ou vida usando um prompt completo. Contexto + Tarefa + Formato + Tom.
+              </div>
+            </div>
+          </div>`
+      }
+    ]
+  }
+];
+
+let currentMod = 0;
+let currentSlide = 0;
+
+function renderModNav() {
+  document.getElementById('modNav').innerHTML = modules.map((m, i) =>
+    `<button class="mod-btn ${i === currentMod ? 'active' : ''}" onclick="goMod(${i})">${m.label}</button>`
+  ).join('');
+}
+
+function renderSlideNav() {
+  document.getElementById('slideNav').innerHTML = modules[currentMod].slides.map((s, i) =>
+    `<button class="slide-btn ${i === currentSlide ? 'active' : ''}" onclick="goSlide(${i})">${s.name}</button>`
+  ).join('');
+}
+
+function renderSlide() {
+  const mod = modules[currentMod];
+  const slide = mod.slides[currentSlide];
+  const total = mod.slides.length;
+  document.getElementById('slideArea').innerHTML = `
+    <div class="slide">
+      ${slide.render()}
+      <div class="slide-num">${String(currentSlide + 1).padStart(2,'0')} / ${String(total).padStart(2,'0')}</div>
+    </div>
+  `;
+}
+
+function goMod(i) {
+  currentMod = i;
+  currentSlide = 0;
+  renderAll();
+}
+
+function goSlide(i) {
+  currentSlide = i;
+  renderSlideNav();
+  renderSlide();
+}
+
+function renderAll() {
+  renderModNav();
+  renderSlideNav();
+  renderSlide();
+}
+
+renderAll();
+</script>
+</body>
+</html>
